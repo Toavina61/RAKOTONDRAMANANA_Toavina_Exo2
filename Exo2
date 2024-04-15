@@ -1,0 +1,94 @@
+#Algorithme
+"""
+Définition des variables :
+    variables = ['a', 'b', 'c']
+
+Création de la table de vérité :
+    Pour chaque combinaison de valeurs de variables :
+        Calculer le résultat de la fonction logique pour les valeurs données
+        Ajouter les valeurs de variables et le résultat à la table de vérité
+
+Affichage de la table de vérité :
+    Afficher les en-têtes des colonnes
+    Pour chaque ligne de la table de vérité :
+        Afficher les valeurs de variables et le résultat correspondant
+
+Groupement des termes avec la méthode de Karnaugh :
+    Pour chaque ligne de la table de vérité :
+        Si le résultat est 1 :
+            Créer un groupe de termes en fonction des variables présentes dans la ligne
+            Ajouter le groupe à la liste de groupes
+
+Simplification des groupes :
+    Pour chaque groupe de la liste de groupes :
+        Simplifier le groupe en gardant uniquement les variables présentes
+        Ajouter le groupe simplifié à une nouvelle liste de groupes simplifiés
+
+Affichage des groupes simplifiés :
+    Pour chaque groupe simplifié :
+        Afficher le groupe sous forme de somme de produits de variables
+
+Affichage de la fonction logique minimisée :
+    Concaténer les groupes simplifiés pour former la fonction logique minimisée
+    Afficher la fonction logique minimisée
+"""
+
+from itertools import product
+
+# Définition des variables
+variables = ['a', 'b', 'c']
+
+# Création de la table de vérité
+truth_table = []
+for values in product([0, 1], repeat=len(variables)):
+    a, b, c = values
+    result = a and b or (not b and c) or (a and not c)
+    truth_table.append((a, b, c, result))
+
+# Affichage de la table de vérité
+print("Table de vérité :")
+print("{:2s} {:2s} {:2s} | {:2s}".format(*variables, "f"))
+print("-" * 11)
+for row in truth_table:
+    print("{:2d} {:2d} {:2d} | {:2d}".format(*row))
+
+# Groupement des termes avec la méthode de Karnaugh
+groups = []
+for i in range(8):
+    if truth_table[i][3] == 1:
+        a, b, c, _ = truth_table[i]
+        group = []
+
+        if i % 2 == 0:
+            group.append(('0' if a == 0 else '1') + ' -')
+        if (i + 1) % 2 == 0:
+            group.append(('0' if b == 0 else '1') + ' -')
+        if i < 4:
+            group.append(('0' if c == 0 else '1') + ' -')
+
+        groups.append(group)
+
+# Simplification des groupes
+simplified_groups = []
+for group in groups:
+    simplified_group = []
+
+    for variable in variables:
+        if variable in group:
+            simplified_group.append(variable)
+        elif 'non_' + variable in group:
+            simplified_group.append('non_' + variable)
+
+    if len(simplified_group) > 0:
+        simplified_groups.append(simplified_group)
+
+# Affichage des groupes simplifiés
+print("\nGroupes simplifiés :")
+for group in simplified_groups:
+    print(" + ".join(group))
+
+# Affichage de la fonction logique minimisée
+print("\nFonction logique minimisée :")
+minimized_function = " + ".join(["".join(group) for group in simplified_groups])
+print(minimized_function)
+
